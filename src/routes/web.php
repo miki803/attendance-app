@@ -13,7 +13,7 @@ Route::get('/', function () {
 });
 
 //一般ユーザー
-Route::middleware('auth')->group(function () {
+//Route::middleware('auth')->group(function () {
     // 出勤登録画面（一般ユーザー）
     Route::get('/attendance',[AttendanceController::class,'index']);
     // 出勤
@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/stamp_correction_request',[StampCorrectionRequestController::class,'store']);
     //申請詳細
     Route::get('/stamp_correction_request/{id}',[StampCorrectionRequestController::class,'show']);
-});
+//});
 
 //管理者
 Route::prefix('admin')->middleware('auth')->group(function () {
