@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Attendance;
+use App\Models\BreakTime;
 
 class AttendanceController extends Controller
 {
@@ -16,66 +18,103 @@ class AttendanceController extends Controller
     // 出勤
     public function start()
     {
-        // 今日の日付
-        // attendance を作成 or 更新
-        // status = working
-        // 一覧 or 打刻画面へ戻す
+        Attendance::create([
+            'user_id' => auth()->id(),
+            'date' => now()->toDateString(), // attendance を作成 or 更新
+            'start_time' => now()->format('H:i'),// 今日の日付
+            'status' => 'working',// status = working
+        ]);
+        return redirect('/attendance');// 一覧 or 打刻画面へ戻す
+
     }
 
     // 休憩
-    public function break()
+    public function breakStart()
     {
-        // 最新の attendance を取得
-        // break_times にレコード追加
-        // 戻る
+        // 出勤中の勤怠を取得
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereDate('date', now()->toDateString())
+            ->whereNull('end_time')
+            ->first();
+        if (!$attendance){
+            abort(400); // 出勤してないのに休憩はできない
+        }
+        // 休憩開始
+        BreakTime::create([
+            'attendance_id' => $attendance->id,
+            'start_time' => now()->format('H:i'),
+        ]);
+        return redirect('/attendance');
+    }
+
+    public function breakEnd()
+    {
+        // 出勤中の勤怠を取得
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereDate('date', now()->toDateString())
+            ->whereNull('end_time')
+            ->first();
+        if (!$attendance){
+            abort(400);
+        }
+        // 休憩中のレコードを取得
+        $break = BreakTime::where('attendance_id', $attendance->id)
+            ->whereNull('end_time')
+            ->first();
+        if (!$break){
+            abort(400);
+        }
+        // 休憩終了
+        $break->update([
+            'end_time' => now()->format('H:i'),
+        ]);
+        return redirect('/attendance');
     }
 
     // 退勤
     public function end()
     {
-        // attendance の end_time を入れる
-        // status = finished
-        // 一覧へ
+        // 出勤中の勤怠を取得
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereDate('date', now()->toDateString())
+            ->whereNull('end_time')
+            ->first();
+
+        if (!$attendance) {
+            abort(400); // 出勤してない
+        }
+        $attendance->update([
+            'end_time' => now()->format('H:i'),// attendance の end_time を入れる
+            'status' => 'finished',// status = finished
+        ]);
+        return redirect('/attendance');// 一覧へ
     }
 
     // 勤怠一覧
     public function list()
     {
-        // 自分の attendances を取得
-        $attendances = [
-            [
-                'id' => 1,
-                'date' => '2025-12-30',
-                'start_time' => '09:00',
-                'end_time' => '18:00',
-                'status' => 'finished',
-            ],
-            [
-                'id' => 2,
-                'date' => '2025-12-29',
-                'start_time' => '09:30',
-                'end_time' => '18:30',
-                'status' => 'finished',
-            ],
-        ];// 仮の勤怠一覧データ
-        return view('attendance.list',compact('attendances'));
+        //ログイン中のユーザーの勤怠データをDBから取って、一覧画面に渡す
+        $attendances = Attendance::where('user_id', auth()->id()) ->orderBy('date', 'desc')
+        ->get();
+        return view('attendance.list', compact('attendances'));
+
     }
 
     // 勤怠詳細
     public function detail($id)
     {
-        // attendance + break_times を取得
-        $attendance = [
-            'id' => $id,
-            'date' => '2025-12-31',
-            'start_time' => '09:00',
-            'end_time' => '18:00',
-            'status' => 'working',
-        ];// 仮の「勤怠1件」
-        $breakTimes = [
-            ['start_time' => '12:00', 'end_time' => '12:45'],
-            ['start_time' => '15:30', 'end_time' => '15:40'],
-        ];// 仮の「休憩（複数）」
+        // URLで指定した$idの勤怠の中から、ログイン中ユーザーのものだけを1件取得する
+        $attendance = Attendance::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->first();
+        if (!$attendance){
+            abort(404);
+        }
+
+        // この勤怠（$attendance）に紐づく休憩を、開始時間順で全部取る
+        $breakTimes = BreakTime::where('attendance_id', $attendance->id)
+        ->orderBy('start_time')
+        ->get();
         return view('attendance.detail',compact('attendance','breakTimes'));
     }
 }
