@@ -12,7 +12,11 @@ class AttendanceController extends Controller
     public function index()
     {
         //出勤時登録画面
-        return view('attendance.index');
+        $attendance = Attendance::where('user_id',auth()->id())
+            ->whereDate('date',now()->toDateString())
+            ->first();
+        
+        return view('attendance.index',compact('attendance'));
     }
 
     // 出勤

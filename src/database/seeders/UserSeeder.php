@@ -34,3 +34,4 @@ class UserSeeder extends Seeder
         }
     }
 }
+// ※ 全ユーザー共通の仮パスワード: password

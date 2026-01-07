@@ -8,18 +8,21 @@ use App\Http\Controllers\StampCorrectionRequestController;
 
 
 
+
 Route::get('/', function () {
     return view('welcome');
 });
 
 //一般ユーザー
-//Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     // 出勤登録画面（一般ユーザー）
     Route::get('/attendance',[AttendanceController::class,'index']);
     // 出勤
     Route::post('/attendance/start',[AttendanceController::class,'start']);
-    // 休憩
-    Route::post('/attendance/break',[AttendanceController::class,'break']);
+    // 休憩開始
+    Route::post('/attendance/break/start',[AttendanceController::class,'breakStart']);
+    // 休憩終了
+    Route::post('/attendance/break/end',[AttendanceController::class,'breakEnd']);
     // 退勤
     Route::post('/attendance/end',[AttendanceController::class,'end']);
     // 勤怠一覧画面（一般ユーザー）
@@ -33,7 +36,7 @@ Route::get('/', function () {
     Route::post('/stamp_correction_request',[StampCorrectionRequestController::class,'store']);
     //申請詳細
     Route::get('/stamp_correction_request/{id}',[StampCorrectionRequestController::class,'show']);
-//});
+});
 
 //管理者
 Route::prefix('admin')->middleware('auth')->group(function () {
@@ -57,3 +60,4 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/stamp_correction_request/approve/{id}',[StampCorrectionRequestController::class,'approve']);
 
     });
+
