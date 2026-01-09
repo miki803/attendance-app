@@ -26,9 +26,9 @@ Route::middleware('auth')->group(function () {
     // 退勤
     Route::post('/attendance/end',[AttendanceController::class,'end']);
     // 勤怠一覧画面（一般ユーザー）
-    Route::get('/attendance/list',[AttendanceController::class,'list']);
+    Route::get('/attendance/list',[AttendanceController::class,'list'])->name('attendance.list');
     // 勤怠詳細画面（一般ユーザー）
-    Route::get('/attendance/detail/{id}',[AttendanceController::class,'detail']);
+    Route::get('/attendance/detail/{id}',[AttendanceController::class,'detail'])->name('attendance.detail');
 
     //申請一覧画面（一般ユーザー）
     Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'userList']);

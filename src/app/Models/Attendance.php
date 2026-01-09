@@ -35,4 +35,7 @@ class Attendance extends Model
         'end_time',
         'status',
     ];
+    protected $casts = [
+        'date' => 'date'
+    ];
 }

@@ -1,3 +1,18 @@
+@extends('layouts.app')
+
+@section('title','勤怠詳細画面（一般ユーザー')
+
+<!-- css読み込み -->
+@section('css')
+<link rel="stylesheet" href="{{ asset('/css/attendance.css')  }}">
+@endsection
+
+<!-- 本体 -->
+@section('content')
+
+@include('components.header')
+
+
 勤怠詳細画面（一般ユーザー）
 <h1>勤怠詳細</h1>
 

@@ -1,18 +1,19 @@
+/*ベース*/
 *{
     box-sizing: border-box;
 }
 
 img{
     width: 100%;
+    display: block;
 }
 
 button{
     background-color: transparent;
     border: none;
     cursor: pointer;
-    outline: none; /*変更？*/
     padding: 0;
-    appearance: none;
+    font: inherit;
 }
 
 select{
@@ -20,62 +21,60 @@ select{
     outline: none; /*変更？*/
 }
 
-/*button:focus-visible,
-select:focus-visible {
-    outline: 2px solid #ff333f;
-}*/
 
-header{
+/*配置・構造*/
+.header {
     align-items: center;
     background-color: #000;
     color: #fff;
     display: flex;
-    font-size: 16px;
     justify-content: space-between;
     height: 60px;
     padding: 0 30px;
     position: sticky;
-    z-index: var(--mer-z-index-navigation-top);
-    top: 0px;
+    top: 0;
 }
 
+.container {
+    padding: 5%;
+}
+
+.center {
+    width: 680px;
+    margin: 0 auto;
+    padding: 50px 0;
+}
+
+
+/*部品*/
 .header__logo{
     width: 250px;
     height: fit-content;
     vertical-align: middle;
 }
 
-.header__search{
-    display: flex;
-    height: 100%;
-    padding: 10px 0;
-}
-.header__search--input{
-    border: none;
-    padding: 0 20px;
-    width: 25vw;
-}
-.header__search--button{
-    display: none;
-}
-
-.header__nav{
-    display: flex;
-}
-.header__nav ul{
+.header__nav ul {
     display: flex;
     align-items: center;
+    gap: 30px;
 }
-.header__nav li{
-    margin-right: 30px;
+
+.header__nav a {
+    color: #fff;
+    font-size: 14px;
+    text-decoration: none;
 }
-.header__nav li:hover{
+
+.header__nav a:hover {
     font-weight: bold;
 }
 
 .header__logout{
+    background: none;
+    border: none;
     color: #fff;
     font-size: 16px;
+    cursor: pointer;
 }
 .header__logout:hover{
     font-weight: bold;
@@ -93,51 +92,39 @@ header{
     transition: 0.3s;
 }
 
-.container{
-    padding: 5%;
-}
-
-.btn{
-    display: flex;
-    align-items: center;
+.btn {
     background-color: #000;
-    border-radius: 5px;
     color: #fff;
     font-weight: bold;
-    justify-content: center;
-    width: 450px;
-    height: 45px;
+    border-radius: 5px;
 }
-.btn:hover{
+
+.btn:hover {
     opacity: 0.8;
-    transition: 0.2s;
 }
-.btn--big{
+
+
+.input {
     width: 100%;
-    margin-top: 60px;
-    font-size: 20px;
-}
-
-.btn2{
-    border: 2px solid #000;
-}
-.btn2:hover {
-    cursor: pointer;
-}
-.btn2--input {
-    display: none;
-}
-
-.center {
-    width: 680px;
-    margin: 0 auto;
-    padding: 50px 0;
+    height: 45px;
+    padding: 5px;
 }
 
 .page__title {
     font-size: 30px;
     text-align: center;
     margin-bottom: 60px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 .entry__name {
@@ -147,10 +134,8 @@ header{
     margin: 30px 0 10px 0;
 }
 
-.input {
-    width: 100%;
-    height: 45px;
-    padding: 5px;
+.text-center {
+    text-align: center;
 }
 
 .form__error {
@@ -169,17 +154,5 @@ header{
     }
 }
 
-/*将来タス
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-.table th,
-.table td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-.text-center {
-    text-align: center;
-}*/
+

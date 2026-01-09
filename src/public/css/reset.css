@@ -1,0 +1,46 @@
+/* 余白・装飾の初期化 */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 基本設定 */
+body {
+    line-height: 1;
+}
+
+/* リスト */
+ul,
+ol {
+    list-style: none;
+}
+
+/* リンク */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* 画像 */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* テーブル */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* フォーム */
+input,
+select,
+textarea,
+button {
+    font: inherit;
+}

@@ -11,7 +11,7 @@
 <!-- 本体 -->
 @section('content')
 
-@include('components.header')
+@include('components.header_admin')
 <form class="authenticate center" action="/login" method="post" >
     @csrf
     <h1 class="page__title">管理者ログイン</h1>

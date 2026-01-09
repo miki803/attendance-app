@@ -1,35 +1,21 @@
-<!--共通ヘッダー-->
 
 <header class="header">
     <div class="header__logo">
-        <a href="/"><img src="{{ asset('img/') }}" alt="ロゴ"></a>
+        <a href="/"><img src="{{ asset('img/coachtech-logo.png') }}" alt="ロゴ"></a>
     </div>
-    @if( !in_array(Route::currentRouteName(), ['register', 'login', 'verification.notice']) )
-    <form class="header_search" action="/" method="get">
-        @csrf
-        <input class="header_search--input" id="inputElement"  type="text" name="search" placeholder="なにをお探しですか？">
-        <button class="header_search--button" id="buttonElement" >
-            <img src="{{ asset('img/search_icon.jpeg') }}" alt="検索アイコン" style="height:100%;">
-        </button>
-    </form>
+
     <nav class="header__nav">
         <ul>
-            @if(Auth::check())
+            <li><a href="/attendance">勤怠</a></li>
+            <li><a href="/attendance/list">勤怠一覧</a></li>
+            <li><a href="/correction/user_list">申請</a></li>
             <li>
                 <form action="/logout" method="post">
                     @csrf
                     <button class="header__logout">ログアウト</button>
                 </form>
             </li>
-            <li><a href="/mypage">マイページ</a></li>
-            @else
-            <li><a href="/login">ログイン</a></li>
-            <li><a href="/register">会員登録</a></li>
-            @endif
-            <a href="/sell">
-                <li class="header__btn">出品</li>
-            </a>
+            
         </ul>
     </nav>
-    @endif
 </header>

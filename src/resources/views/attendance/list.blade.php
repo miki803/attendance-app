@@ -1,4 +1,18 @@
-勤怠一覧画面（一般ユーザー）
+@extends('layouts.app')
+
+@section('title','勤怠一覧画面（一般ユーザー')
+
+<!-- css読み込み -->
+@section('css')
+<link rel="stylesheet" href="{{ asset('/css/attendance.css')  }}">
+@endsection
+
+<!-- 本体 -->
+@section('content')
+
+@include('components.header')
+
+）
 <h1>勤怠一覧</h1>
 
 <ul>

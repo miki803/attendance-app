@@ -11,6 +11,7 @@
 @section('content')
 
 @include('components.header')
+<div class="attendance">
 <form class="authenticate center" action="/login" method="post" >
     @csrf
     <h1 class="page__title">ログイン</h1>
@@ -31,4 +32,5 @@
     <button class="btn btn--big">ログインする</button>
     <a href="/register" class="link">会員登録はこちら</a>
 </form>
+</div>
 @endsection

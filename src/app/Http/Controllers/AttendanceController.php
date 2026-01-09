@@ -15,13 +15,28 @@ class AttendanceController extends Controller
         $attendance = Attendance::where('user_id',auth()->id())
             ->whereDate('date',now()->toDateString())
             ->first();
-        
-        return view('attendance.index',compact('attendance'));
+
+        $onBreak =false;
+
+        //この勤怠に紐づく休憩があるか
+        if($attendance){
+            $onBreak = BreakTime::where('attendance_id',$attendance->id)
+                ->whereNull('end_time')
+                ->exists();
+        }
+        return view('attendance.index',compact('attendance','onBreak'));
     }
 
     // 出勤
     public function start()
     {
+        $already = Attendance::where('user_id',auth()->id())
+            ->whereDate('date',now()->toDateString())
+            ->exists();
+        if($already){
+            abort(400);
+        }
+
         Attendance::create([
             'user_id' => auth()->id(),
             'date' => now()->toDateString(), // attendance を作成 or 更新
@@ -85,11 +100,11 @@ class AttendanceController extends Controller
             ->first();
 
         if (!$attendance) {
-            abort(400); // 出勤してない
+            abort(400);
         }
         $attendance->update([
-            'end_time' => now()->format('H:i'),// attendance の end_time を入れる
-            'status' => 'finished',// status = finished
+            'end_time' => now()->format('H:i'),
+            'status' => 'finished',
         ]);
         return redirect('/attendance');// 一覧へ
     }
