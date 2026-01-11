@@ -4,7 +4,7 @@
     padding: 20px 40px;
     border-radius: 15px;
     background: #c0c0c0;
-    box-shadow: 0 10px 0 rgba(0, 0, 0, 5);
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 
 .mail_notice--header {
@@ -22,7 +22,7 @@
 }
 
 .mail_notice--form {
-    margin: 10pz 0;
+    margin: 10px 0;
 }
 
 .mail_notice--button {

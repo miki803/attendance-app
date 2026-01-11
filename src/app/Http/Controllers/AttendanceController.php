@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\BreakTime;
@@ -109,13 +110,26 @@ class AttendanceController extends Controller
         return redirect('/attendance');// 一覧へ
     }
 
-    // 勤怠一覧
-    public function list()
+    // 勤怠一覧（月次）
+    public function list(Request $request)
     {
-        //ログイン中のユーザーの勤怠データをDBから取って、一覧画面に渡す
-        $attendances = Attendance::where('user_id', auth()->id()) ->orderBy('date', 'desc')
+        // 表示する月（YYYY-MM）
+        $month = $request->query('month')
+            ?Carbon::createFromFormat('Y-m',$request->query('month'))
+            :Carbon::now();
+        // 月初・月末
+        $startOfMonth = $month->copy()->startOfMonth();
+        $endOfMonth = $month->copy()->endOfMonth();
+        // ログインユーザーの勤怠を月次で取得
+        $attendances = Attendance::where('user_id', auth()->id())
+        ->whereBetween('date',[$startOfMonth,$endOfMonth])
+        ->orderBy('date')
         ->get();
-        return view('attendance.list', compact('attendances'));
+
+        return view('attendance.list',[
+            'attendances' => $attendances,
+            'currentMonth' => $month,
+        ]);
 
     }
 

@@ -16,6 +16,7 @@ class AttendanceCorrectionDetail extends Model
 
     protected $fillable = [
         'request_id',
+        'target',
         'start_time',
         'end_time',
         'note',

@@ -21,6 +21,8 @@ class CreateAttendanceCorrectionDetailsTable extends Migration
             $table->time('end_time');
             $table->text('note');
             $table->timestamps();
+            $table->string('target'); // start_time /end_time / break_time
+
         });
     }
 
