@@ -1,0 +1,74 @@
+/* 全体背景 */
+.page {
+    background: #f2f2f2;      /* 少し明るめグレー */
+    min-height: 100vh;
+    padding: 40px 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* 白いカード */
+.card {
+    background: transparent;
+    width: 900px;
+    padding: 30px;
+    border-radius: 6px;
+}
+
+/* タイトル */
+.card__title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-left: 12px;
+    border-left: 4px solid #000;
+}
+
+.table-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 0 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 月切り替え */
+.month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* テーブル */
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ヘッダー */
+.attendance-table th {
+    padding: 14px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* セル */
+.attendance-table td {
+    padding: 14px 8px;
+        font-size: 14px;
+        color: #666;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: center;
+}
+
+/* 罫線 */
+.attendance-table th,
+.attendance-table td {
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}

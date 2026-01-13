@@ -117,16 +117,31 @@ class AttendanceController extends Controller
         $month = $request->query('month')
             ?Carbon::createFromFormat('Y-m',$request->query('month'))
             :Carbon::now();
+
         // 月初・月末
         $startOfMonth = $month->copy()->startOfMonth();
         $endOfMonth = $month->copy()->endOfMonth();
-        // ログインユーザーの勤怠を月次で取得
+
+        //月の日付一覧を作る
+        $dates =[];
+        $currentDate = $startOfMonth->copy();
+        while ($currentDate <= $endOfMonth) {
+            $dates[] = $currentDate->copy();
+            $currentDate->addDay();
+        }
+
+        // 勤怠を日付キーで取得
         $attendances = Attendance::where('user_id', auth()->id())
         ->whereBetween('date',[$startOfMonth,$endOfMonth])
+        ->with('breakTimes')
         ->orderBy('date')
-        ->get();
+        ->get()
+        ->keyBy(function ($attendance) {
+            return $attendance->date->format('Y-m-d');
+        });
 
         return view('attendance.list',[
+            'dates' => $dates,
             'attendances' => $attendances,
             'currentMonth' => $month,
         ]);
