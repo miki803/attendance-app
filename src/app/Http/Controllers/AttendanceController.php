@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use App\Models\AttendanceCorrectionRequest;
 
 class AttendanceController extends Controller
 {
@@ -163,6 +164,13 @@ class AttendanceController extends Controller
         $breakTimes = BreakTime::where('attendance_id', $attendance->id)
         ->orderBy('start_time')
         ->get();
-        return view('attendance.detail',compact('attendance','breakTimes'));
+
+        $correction = AttendanceCorrectionRequest::where('attendance_id',$attendance->id)
+        ->latest()
+        ->first();
+        $isPending = $correction && $correction->status === 'pending';
+
+
+        return view('attendance.detail',compact('attendance','breakTimes','isPending'));
     }
 }
