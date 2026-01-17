@@ -42,6 +42,9 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->middleware('auth')->group(function () {
     //勤怠一覧画面（管理者）
     Route::get('/attendance/list',[AdminAttendanceController::class,'index']);
+    // 勤怠CSV出力（管理者）
+    Route::get('/attendance/csv', [AdminAttendanceController::class, 'exportCsv']);
+
     //勤怠詳細画面（管理者）
     Route::get('/attendance/{id}',[AdminAttendanceController::class,'detail']);
     //スタッフ別勤怠一覧画面（管理者）
