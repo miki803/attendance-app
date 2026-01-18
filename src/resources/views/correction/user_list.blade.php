@@ -11,3 +11,14 @@
 @section('content')
 
 @include('components.header')
+
+<div class="border">
+    <ul class="border__list">
+        <li><a href="{{ route('items.list', ['tab'=>'recommend', 'search'=>$search]) }}">承認待ち</a></li>
+        @if(!auth()->guest())
+        <li><a href="{{ route('items.list', ['tab'=>'mylist', 'search'=>$search]) }}">承認済み</a></li>
+        @endif
+    </ul>
+</div>
+
+@endsection

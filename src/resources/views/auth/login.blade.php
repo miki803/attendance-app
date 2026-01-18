@@ -12,7 +12,7 @@
 
 @include('components.header')
 <div class="attendance">
-<form class="authenticate center" action="/login" method="post" >
+<form class="authenticate center" action="{{ route('login') }}" method="post" >
     @csrf
     <h1 class="page__title">ログイン</h1>
     <label class="entry__name" for="mail" >メールアドレス</label>
