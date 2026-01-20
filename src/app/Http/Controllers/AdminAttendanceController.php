@@ -19,8 +19,8 @@ class AdminAttendanceController extends Controller
             ?Carbon::createFromFormat('Y-m-d',$request->query('date'))
             :Carbon::today();
 
-            // その日の全スタッフの勤怠
-        $attendances = Attendance::with('user_id')
+            // 勤怠があるスタッフのみ
+        $attendances = Attendance::with('user')
             ->whereDate('date', $date)
             ->orderBy('user_id')
             ->get();
@@ -60,7 +60,45 @@ class AdminAttendanceController extends Controller
     public function update() { }
 
     // スタッフ別勤怠
-    public function staff() { }
+    public function staff($id, Request $request) {
+        // スタッフ取得
+        $staff = User::findOrFail($id);
+
+        // 表示する月（YYYY-MM）
+        $currentMonth = $request->query('month')
+            ?Carbon::createFromFormat('Y-m',$request->query('month'))
+            :Carbon::now();
+
+        // 月初・月末
+        $startOfMonth = $currentMonth->copy()->startOfMonth();
+        $endOfMonth = $currentMonth->copy()->endOfMonth();
+
+        //日付一覧
+        $dates =[];
+        $currentDate = $startOfMonth->copy();
+            while ($currentDate <= $endOfMonth) {
+                $dates[] = $currentDate->copy();
+                $currentDate->addDay();
+            }
+
+        // 勤怠取得（スタッフ × 月）
+        $attendances = Attendance::where('user_id', $staff->id)
+            ->whereBetween('date',[$startOfMonth,$endOfMonth])
+            ->with('breakTimes')
+            ->orderBy('date')
+            ->get()
+            ->keyBy(function ($attendance) {
+                return $attendance->date->format('Y-m-d');
+        });
+
+        return view('admin.attendance.staff',[
+            'staff' =>$staff,
+            'dates' => $dates,
+            'attendances' => $attendances,
+            'currentMonth' => $currentMonth,
+        ]);
+
+    }
 
 }
 

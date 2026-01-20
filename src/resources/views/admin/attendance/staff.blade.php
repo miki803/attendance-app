@@ -13,7 +13,7 @@
 <div class="page">
     <div class="card">
 
-        <h2 class="card__title">{{ $attendance->user->name }}さんの勤怠</h2>
+        <h2 class="card__title">{{ $staff->name }}さんの勤怠</h2>
 
         <div class="month-nav">
             <a href="?month={{ $currentMonth->copy()->subMonth()->format('Y-m') }}"><- 前月</a>
@@ -43,13 +43,13 @@
                             {{ $date->format('m/d') }}
                             ({{ $date->isoFormat('dd') }})
                         </td> <!-- 日付 -->
-                        <td>{{ $attendance?->start_time_formatted ??'-' }} </td> <!-- 出勤 -->
-                        <td>{{ $attendance?->end_time_formatted ??'-' }}</td> <!-- 退勤 -->
+                        <td>{{ $attendance?->start_time_formatted ?? '-' }} </td> <!-- 出勤 -->
+                        <td>{{ $attendance?->end_time_formatted ?? '-' }}</td> <!-- 退勤 -->
                         <td>{{ $attendance?->break_time ?? '-' }}</td> <!-- 休憩 -->
                         <td>{{ $attendance?->working_time ?? '-' }}</td> <!-- 合計 -->
                         <td>
                             @if($attendance)
-                                <a href="{{ route('attendance.detail',$attendance->id) }}">詳細</a>
+                                <a href="{{ route('admin.attendance.detail', $attendance->id) }}">詳細</a>
                             @else
                                 -
                             @endif

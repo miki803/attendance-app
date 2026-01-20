@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','スタッフ一覧画面（管理者））')
+@section('title','スタッフ一覧画面（管理者）')
 
 <!-- css読み込み -->
 @section('css')
@@ -19,7 +19,7 @@
 
 
         <div class="table-card">
-            <table class="attendance-table">
+            <table class="staff-table">
                 <thead>
                     <tr>
                         <th>名前</th>
@@ -28,17 +28,15 @@
                     </tr>
                 </thead>
                 <tbody>
+                @foreach($staffs as $staff)
                     <tr>
-                        <td>{{ $attendance->user->name }}</td> <!-- 名前 -->
-                        <td>{{ $attendance?->user->mail}}</td> <!-- メールアドレス -->
+                        <td>{{ $staff->name }}</td> <!-- 名前 -->
+                        <td>{{ $staff?->email}}</td> <!-- メールアドレス -->
                         <td>
-                            @if($attendance)
-                                <a href="{{ route('attendance.detail',$attendance->id) }}">詳細</a>
-                            @else
-                                -
-                            @endif
+                            <a href="{{ route('admin.attendance.staff',$staff->id) }}">詳細</a>
                         </td>
                     </tr>
+                @endforeach
                 </tbody>
 
             </table>

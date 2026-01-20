@@ -26,9 +26,11 @@ Route::middleware('auth')->group(function () {
     // 退勤
     Route::post('/attendance/end',[AttendanceController::class,'end']);
     // 勤怠一覧画面（一般ユーザー）
-    Route::get('/attendance/list',[AttendanceController::class,'list'])->name('attendance.list');
+    Route::get('/attendance/list',[AttendanceController::class,'list'])
+    ->name('attendance.list');
     // 勤怠詳細画面（一般ユーザー）
-    Route::get('/attendance/detail/{id}',[AttendanceController::class,'detail'])->name('attendance.detail');
+    Route::get('/attendance/detail/{id}',[AttendanceController::class,'detail'])
+    ->name('attendance.detail');
 
     //申請一覧画面（一般ユーザー）
     Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'userList']);
@@ -41,19 +43,23 @@ Route::middleware('auth')->group(function () {
 //管理者
 Route::prefix('admin')->middleware('auth', 'is_admin')->group(function () {
     //勤怠一覧画面（管理者）
-    Route::get('/attendance/list',[AdminAttendanceController::class,'index']);
+    Route::get('/attendance/list',[AdminAttendanceController::class,'index'])
+    ->name('admin.attendance');
     // 勤怠CSV出力（管理者）
     Route::get('/attendance/csv', [AdminAttendanceController::class, 'exportCsv']);
 
+    //スタッフ別勤怠一覧画面（管理者）
+    Route::get('/attendance/staff/{user}',[AdminAttendanceController::class,'staff'])
+    ->name('admin.attendance.staff');
     //勤怠詳細画面（管理者）
     Route::get('/attendance/{id}',[AdminAttendanceController::class,'detail']);
-    //スタッフ別勤怠一覧画面（管理者）
-    Route::get('/attendance/staff/{id}',[AdminAttendanceController::class,'staff']);
+
     //勤怠修正
     Route::post('/attendance/update',[AdminAttendanceController::class,'update']);
 
     //スタッフ一覧画面（管理者）
-    Route::get('/staff/list',[StaffController::class,'index']);
+    Route::get('/staff/list',[StaffController::class,'index'])
+    ->name('admin.staff.list');
 
     //申請一覧画面（管理者）
     Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'adminList']);
