@@ -8,7 +8,7 @@
 
 @section('content')
 
-
+@include('components.header_admin')
 
 <div class="page">
     <div class="card">

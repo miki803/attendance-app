@@ -3,21 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Attendance;
+use App\Models\AttendanceCorrectionRequest;
 
 class StampCorrectionRequestController extends Controller
 {
-    // 一般ユーザー申請一覧
-    public function userList() { }
+    // 一般ユーザー：申請一覧
+    public function userList() 
+    {
+        $userId = Auth::id();
 
-    // 申請送信
+        $pendingRequests = AttendanceCorrectionRequest::with
+    }
+
+    // 一般ユーザー：修正申請送信
     public function store() { }
 
-    // 申請詳細
+    // 申請詳細（一般・管理者共通）
     public function show() { }
 
-    // 管理者申請一覧
+    // 管理者：申請一覧
     public function adminList() { }
 
-    // 承認
+    // 管理者：申請承認
     public function approve() { }
 }

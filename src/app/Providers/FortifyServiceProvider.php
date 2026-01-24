@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Http\Requests\LoginRequest as FortifyLoginRequest;
 
 
@@ -30,6 +31,17 @@ class FortifyServiceProvider extends ServiceProvider
 
                 return redirect('/attendance');
             }
+        });
+
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse {
+                public function toResponse($request)
+                {
+                    return auth()->user()->is_admin
+                        ? redirect('/admin/attendance/list')
+                        : redirect('/attendance');
+                }
+            };
         });
     }
 

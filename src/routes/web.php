@@ -13,6 +13,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/admin/login', function () {
+    return view('admin.login');
+})->name('admin.login');
+
 //一般ユーザー
 Route::middleware('auth')->group(function () {
     // 出勤登録画面（一般ユーザー）
