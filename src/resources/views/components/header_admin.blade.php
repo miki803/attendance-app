@@ -1,8 +1,9 @@
 <header class="header">
     <div class="header__logo">
-        <img src="{{ asset('img/COACHTECH.png') }}" alt="COACHTECH">
+        <a href="/login"><img src="{{ asset('img/COACHTECH.png') }}" alt="COACHTECH"></a>
     </div>
 
+    @auth
     <nav class="header__nav">
         <ul>
             <li><a href="/admin/attendance/list">勤怠一覧</a></li>
@@ -16,4 +17,5 @@
             </li>
         </ul>
     </nav>
+    @endauth
 </header>

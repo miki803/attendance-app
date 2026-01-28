@@ -43,13 +43,13 @@
                     </td>
                 </tr>
 
-                @foreach ($breakTimes as $i=> $break)
+                @foreach ($breakTimes as $i => $break)
                 <tr>
-                    <th>休憩</th>
+                    <th>休憩{{ $i + 1 }}</th>
                     <td>
-                        <input type="time" name="breaks[{{ $i }}][start]" value="{{ $break->start_time }}" {{ $isPending ? 'disabled' : '' }}>
+                        <input type="time" name="requested_breaks[{{ $i }}][start]" value="{{ old("requested_breaks.$i.start", $break->start_time) }}" {{ $isPending ? 'disabled' : '' }}>
                         ~
-                        <input type="time" name="breaks[{{ $i }}][end]" value="{{ $break->end_time }}" {{ $isPending ? 'disabled' : '' }}>
+                        <input type="time" name="requested_breaks[{{ $i }}][end]" value="{{ old("requested_breaks.$i.end", $break->end_time) }}" {{ $isPending ? 'disabled' : '' }}>
                     </td>
                 </tr>
                 @endforeach
@@ -57,9 +57,9 @@
                 <tr>
                     <th>休憩{{ count($breakTimes) + 1 }}</th>
                     <td>
-                        <input type="time" name="breaks[{{ count($breakTimes) }}][start]" {{ $isPending ? 'disabled' : '' }}>
+                        <input type="time" name="requested_breaks[{{ count($breakTimes) }}][start]" {{ $isPending ? 'disabled' : '' }}>
                         ~
-                        <input type="time" name="breaks[{{ count($breakTimes) }}][end]" {{ $isPending ? 'disabled' : '' }}>
+                        <input type="time" name="requested_breaks[{{ count($breakTimes) }}][end]" {{ $isPending ? 'disabled' : '' }}>
                     </td>
                 </tr>
 
@@ -67,13 +67,18 @@
                 <tr>
                     <th>備考</th>
                     <td>
-                        <input class="remark-input" type="text" name="remark" value="{{old('remark')}}" {{ $isPending ? 'disabled' : '' }}>
+                        <input class="remark-input" type="text" name="remark" value="{{ old('remark', $attendance->remark) }}" {{ $isPending ? 'disabled' : '' }}>
                     </td>
                 </tr>
             </table>
             <div class="button-area">
             @if (! $isPending)
                 <button class="btn btn--black" type="submit">修正</button>
+            @endif
+            @if ($isPending)
+                <div class="pending-message">
+                    承認待ちのため修正はできません。
+                </div>
             @endif
 
             </div>

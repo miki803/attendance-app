@@ -37,11 +37,12 @@ Route::middleware('auth')->group(function () {
     ->name('attendance.detail');
 
     //申請一覧画面（一般ユーザー）
-    Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'userList']);
+    Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'userList'])
+    ->name('correction.user_list');
     //修正申請送信
     Route::post('/stamp_correction_request',[StampCorrectionRequestController::class,'store']);
     //申請詳細
-    Route::get('/stamp_correction_request/{id}',[StampCorrectionRequestController::class,'show']);
+    Route::get('/stamp_correction_request/{id}',[StampCorrectionRequestController::class,'userShow']);
 });
 
 //管理者
@@ -68,7 +69,7 @@ Route::prefix('admin')->middleware('auth', 'is_admin')->group(function () {
     //申請一覧画面（管理者）
     Route::get('/stamp_correction_request/list',[StampCorrectionRequestController::class,'adminList']);
     //修正申請承認画面（管理者）
-    Route::get('/stamp_correction_request/approve/{id}',[StampCorrectionRequestController::class,'show']);
+    Route::get('/stamp_correction_request/approve/{id}',[StampCorrectionRequestController::class,'adminShow']);
     //承認
     Route::post('/stamp_correction_request/approve/{id}',[StampCorrectionRequestController::class,'approve']);
 

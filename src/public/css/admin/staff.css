@@ -9,7 +9,6 @@
 
 .card {
     width: 800px;
-    background-color: #fff;
     border-radius: 8px;
     padding: 40px;
 }
@@ -25,19 +24,17 @@
 .table-card {
     border-radius: 6px;
     overflow: hidden;
-    /* 角丸を効かせる */
     border: 1px solid #e0e0e0;
 }
 
 .staff-table {
     width: 100%;
+    background-color: #fff;
     border-collapse: collapse;
     font-size: 14px;
 }
 
-.staff-table thead {
-    background-color: #fafafa;
-}
+
 
 .staff-table th {
     padding: 12px;

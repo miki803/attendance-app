@@ -1,1 +1,122 @@
 /*申請・承認系*/
+body {
+    background-color: #f2f2f2;
+}
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 0;
+}
+
+.card {
+    padding: 32px 40px 40px;
+    border-radius: 4px;
+}
+.card__title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-left: 12px;
+    border-left: 4px solid #000;
+}
+.border {
+    margin-bottom: 24px;
+}
+
+.border__list {
+    display: flex;
+    gap: 40px;
+    border-bottom: 1px solid #cccccc;
+}
+.border__list li {
+    list-style: none;
+}
+
+.border__list a {
+    display: inline-block;
+    padding-bottom: 10px;
+    font-size: 14px;
+    color: #333333;
+    text-decoration: none;
+}
+.border__list li.active a {
+    font-weight: bold;
+    border-bottom: 3px solid #000000;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    font-size: 13px;
+}
+
+.attendance-table thead th {
+    padding: 12px 10px;
+    font-weight: normal;
+    border-bottom: 1px solid #cccccc;
+    text-align: left;
+}
+.attendance-table tbody td {
+    padding: 14px 10px;
+    border-bottom: 1px solid #eeeeee;
+    vertical-align: middle;
+}
+.attendance-table a {
+    color: #000000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.attendance-table a:hover {
+    text-decoration: underline;
+}
+.attendance-table td[colspan] {
+    padding: 24px 0;
+    text-align: center;
+    color: #777777;
+}
+
+/* ==========================
+   タブレット対応
+   768px〜850px
+========================== */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+
+    .page {
+        max-width: 95%;
+        margin: 30px auto;
+    }
+
+    .detail-table th,
+    .detail-table td {
+        padding: 10px;
+    }
+
+    .detail-table th {
+        width: 30%;
+        font-size: 14px;
+    }
+
+    .detail-table td {
+        font-size: 14px;
+    }
+
+    input[type="time"],
+    input[type="text"] {
+        width: 120px;
+        font-size: 14px;
+    }
+
+    .remark-input {
+        width: 100%;
+    }
+
+    .button-area {
+        margin-top: 16px;
+    }
+
+    .btn--black {
+        padding: 6px 20px;
+        font-size: 14px;
+    }
+}

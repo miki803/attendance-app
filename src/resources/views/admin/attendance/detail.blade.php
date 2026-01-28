@@ -73,7 +73,8 @@
             </table>
             <div class="button-area">
             @if (! $isPending)
-                <button class="btn btn--black" type="submit">承認済み</button>
+                <button class="btn btn--black" type="submit">修正
+                </button>
             @endif
 
             </div>

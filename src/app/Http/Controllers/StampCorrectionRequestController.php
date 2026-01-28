@@ -5,84 +5,134 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrectionRequest;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreStampCorrectionRequest;
 
 class StampCorrectionRequestController extends Controller
 {
     // 一般ユーザー：申請一覧
-    public function userList() 
+    public function userList(Request $request)
     {
-        $userId = Auth::id();
+        $status = $request->query('status', 'pending');
 
-        // 承認待ち
-        $pendingRequests = AttendanceCorrectionRequest::where('user_id', $userId)
-            ->where('status', 'pending')
-            ->with('attendance')
+        $requests = AttendanceCorrectionRequest::where('user_id', auth()->id())
+            ->where('status', $status)
+            ->with(['attendance', 'user'])
             ->orderByDesc('created_at')
             ->get();
-        // 承認済み
-        $approveRequests = AttendanceCorrectionRequest::where('user_id', $userId)
-            ->where('status', 'approved')
-            ->with('attendance')
-            ->orderByDesc('created_at')
-            ->get();
-        
-        return view('correction.user_list', compact(
-            'pendingRequests'
-            'approvedRequests'
-        ));
+
+        return view('correction.user_list', compact('requests','status'));
     }
 
     // 一般ユーザー：修正申請送信
-    public function store(Request $request)
+    public function store(StoreStampCorrectionRequest $request)
     {
-        $request->validate([
-            'attendance_id' => 'required|exists:attendances,id'
-        ]);
-        $exists =AttendanceCorrectionRequest::where('attendance_id', $request->attendance_id)
-            ->where('user-id', auth()->id())
+        $attendance = Attendance::where('id', $request->attendance_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $exists =AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('user_id', auth()->id())
             ->where('status', 'pending')
             ->exists();
+
         if($exists) {
-            return back()->with('error', 'すでに承認待ちの申請があります。');
+            return back()->withErrors([
+                'message' => 'すでに承認待ちの申請があります。'
+            ]);
         }
-        AttendanceCorrectionRequest::create([
+
+        $correction = AttendanceCorrectionRequest::create([
             'user_id' => auth()->id(),
-            'attendance-_id' => $request->attendance_id,
-            'status' => 'pending'
+            'attendance_id' => $attendance->id,
+            'status' => 'pending',
+            'requested_start' => $request->start_time,
+            'requested_end'   => $request->end_time,
+            'remark' => $request->remark,
         ]);
+
+        foreach ($request->requested_breaks ?? [] as $break) {
+            if(!$break['start'] && !$break['end']) continue;
+
+            $correction->breakCorrections()->create([
+                'start_time' => $break['start'],
+                'end_time' => $break['end'],
+            ]);
+        }
+
         return redirect('/stamp_correction_request/list')
             ->with('success', '修正申請を送信しました。');
     }
 
-    // 申請詳細（一般・管理者共通）
-    public function show(id)
-    {
-        $correction = Attendance
-            ->findOrFail($id);
-        // 一般ユーザーは自分の申請しか見られない
-        if(!auth()->user()->is_admin && $correction->user_id !== auth()->id()) {
-            abort(403);
-        }
 
-        return view('correction.show', compact('correction'));
+    // 一般ユーザー：申請詳細（閲覧のみ）
+    public function userShow($id)
+    {
+        $correction = AttendanceCorrectionRequest::with(['attendance', 'breakCorrections'])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        return view('correction.user_show', compact('correction'));
     }
 
+
     // 管理者：申請一覧
-    public function adminList()
+    public function adminList(Request $request)
     {
-        $requests = AttendanceCorrectionRequest::with(['attendance', 'user'])
+        $status = $request->query('status');
+        $query = AttendanceCorrectionRequest::with(['attendance', 'user']);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $requests = $query
             ->orderBy('status')
             ->orderByDesc('created_at')
             ->get();
+
+        return view('correction.admin_list', compact('requests', 'status'));
+    }
+
+    // 管理者：申請詳細（承認画面）
+    public function adminShow($id)
+    {
+        $correction = AttendanceCorrectionRequest::with([
+            'attendance',
+            'user',
+            'breakCorrections'
+        ])->findOrFail($id);
+
+        return view('correction.approve', compact('correction'));
     }
 
     // 管理者：申請承認
-    public function approve(id)
+    public function approve($id)
     {
-        $correction =AttendanceCorrectionRequest::findOrFail($id);
-        $correction->update([
-            'status' => 'approved'
-        ]);
+        $correction = AttendanceCorrectionRequest::with(['attendance', 'breakCorrections'])
+            ->findOrFail($id);
+
+        DB::transaction(function () use ($correction) {
+            $attendance = $correction->attendance;
+
+            $attendance->update([
+                'start_time' => $correction->requested_start,
+                'end_time' => $correction->requested_end,
+                'remark' => $correction->remark,
+            ]);
+
+            $attendance->breakTimes()->delete();
+            foreach ($correction->breakCorrections as $break) {
+                $attendance->breakTimes()->create([
+                    'start_time' => $break->start_time,
+                    'end_time'=> $break->end_time,
+                ]);
+            }
+            $correction->update([
+                'status' => 'approved',
+            ]);
+        });
         return redirect('/admin/stamp_correction_request/list')
             ->with('success', '申請を承認しました。');
     }

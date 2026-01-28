@@ -74,3 +74,48 @@
     border-bottom: 1px solid #ddd;
     text-align: center;
 }
+
+/* ==========================
+   タブレット対応
+   768px〜850px
+========================== */
+@media screen and (min-width: 768px) and (max-width: 850px) {
+
+    .page {
+        max-width: 95%;
+        margin: 30px auto;
+    }
+
+    .detail-table th,
+    .detail-table td {
+        padding: 10px;
+    }
+
+    .detail-table th {
+        width: 30%;
+        font-size: 14px;
+    }
+
+    .detail-table td {
+        font-size: 14px;
+    }
+
+    input[type="time"],
+    input[type="text"] {
+        width: 120px;
+        font-size: 14px;
+    }
+
+    .remark-input {
+        width: 100%;
+    }
+
+    .button-area {
+        margin-top: 16px;
+    }
+
+    .btn--black {
+        padding: 6px 20px;
+        font-size: 14px;
+    }
+}

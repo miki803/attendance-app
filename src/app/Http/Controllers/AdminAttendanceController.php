@@ -15,19 +15,22 @@ class AdminAttendanceController extends Controller
     public function index(Request $request) 
     {
         // 表示日（未指定なら今日
-        $date = $request->query('date')
-            ?Carbon::createFromFormat('Y-m-d',$request->query('date'))
-            :Carbon::today();
+        $currentDate = $request->query('date')
 
-            // 勤怠があるスタッフのみ
-        $attendances = Attendance::with('user')
-            ->whereDate('date', $date)
-            ->orderBy('user_id')
+            ? Carbon::createFromFormat('Y-m-d', $request->query('date'))
+            : Carbon::today();
+
+            // 一般ユーザーを全員取得
+        $users = User::where('is_admin', false)
+            ->with(['attendances' => function ($query) use ($currentDate) {
+                $query->whereDate('date', $currentDate);
+            }])
+            ->orderBy('id')
             ->get();
 
         return view('admin.attendance.index',[
-            'attendances' => $attendances,
-            'currentDate' => $date,
+            'users' => $users,
+            'currentDate' => $currentDate,
         ]);
     }
 

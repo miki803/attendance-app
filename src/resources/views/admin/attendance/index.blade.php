@@ -32,15 +32,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($attendances as $attendance)
+                @foreach($users as $user)
+                    @php
+                        $attendance = $user->attendances->first();$attendance = $user->attendances->first();
+                    @endphp
                     <tr>
-                        <td>{{ $attendance->user->name }}</td> <!-- 名前 -->
-                        <td>{{ $attendance->start_time ??'-' }}</td> <!-- 出勤 -->
-                        <td>{{ $attendance->end_time ??'-' }}</td> <!-- 退勤 -->
+                        <td>{{ $user->name }}</td> <!-- 名前 -->
+                        <td>{{ $attendance->start_time ?? '-' }}</td> <!-- 出勤 -->
+                        <td>{{ $attendance->end_time ?? '-' }}</td> <!-- 退勤 -->
                         <td>{{ $attendance->break_time ?? '-' }}</td> <!-- 休憩 -->
                         <td>{{ $attendance->working_time ?? '-' }}</td> <!-- 合計 -->
                         <td>
-                            <a href="{{ url('/admin/attendance/'.$attendance->id) }}">詳細</a>
+                            @if ($attendance)
+                                <a href="{{ url('/admin/attendance/' . $attendance->id) }}">詳細</a>
+                            @else
+                                -
+                            @endif
                         </td>
                     </tr>
                 @endforeach
