@@ -47,9 +47,12 @@
                 @forelse($requests as $request)
                 <tr>
                     <td>{{ $request->status === 'pending' ? '承認待ち' : '承認済み' }}</td>
-                    <td>{{ $request->user->name }}</td>
+                    <td>{{ $request->user?->name ?? '—' }}</td>
                     <td>{{ optional($request->attendance)->date?->format('Y/m/d') }}</td>
-                    <td>{{ $request->remark ?? '—' }}</td>
+                    @php
+                        $attendanceDetail = $request->details->where('target', 'attendance')->first();
+                    @endphp
+                    <td>{{ $attendanceDetail?->note ?? '—' }}</td>
                     <td>{{ $request->created_at->format('Y/m/d') }}</td>
                     <td>
                         <a href="{{ url('/admin/stamp_correction_request/approve/' . $request->id) }}">

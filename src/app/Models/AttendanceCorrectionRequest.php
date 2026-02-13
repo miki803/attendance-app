@@ -13,9 +13,6 @@ class AttendanceCorrectionRequest extends Model
         'attendance_id',
         'user_id',
         'status',
-        'requested_start',
-        'requested_end',
-        'remark',
     ];
 
     public function user()
@@ -34,6 +31,13 @@ class AttendanceCorrectionRequest extends Model
             AttendanceCorrectionDetail::class,
             'request_id'
             );
+    }
+    public function details()
+    {
+        return $this->hasMany(
+            \App\Models\AttendanceCorrectionDetail::class,
+            'request_id'
+        );
     }
 
 

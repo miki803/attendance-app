@@ -27,41 +27,61 @@ class StampCorrectionRequestController extends Controller
     // 一般ユーザー：修正申請送信
     public function store(StoreStampCorrectionRequest $request)
     {
-        $attendance = Attendance::where('id', $request->attendance_id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+        // attendance取得 or 作成
+        if ($request->attendance_id) {
+            $attendance = Attendance::where('id', $request->attendance_id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+        } else {
+            $attendance = Attendance::create([
+                'user_id' => auth()->id(),
+                'date'    => $request->date,
+                'status'  => 'pending',
+            ]);
+        }
 
-        $exists =AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
-            ->where('user_id', auth()->id())
+        // 承認待ちチェック
+        $existsPending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
             ->where('status', 'pending')
             ->exists();
 
-        if($exists) {
-            return back()->withErrors([
-                'message' => 'すでに承認待ちの申請があります。'
-            ]);
+        if ($existsPending){
+            return back()
+                ->withErrors(['message' => '承認待ちのため修正できません。'])
+                ->withInput();
         }
 
-        $correction = AttendanceCorrectionRequest::create([
-            'user_id' => auth()->id(),
-            'attendance_id' => $attendance->id,
-            'status' => 'pending',
-            'requested_start' => $request->start_time,
-            'requested_end'   => $request->end_time,
-            'remark' => $request->remark,
-        ]);
+        return DB::transaction(function () use ($request, $attendance) {
 
-        foreach ($request->requested_breaks ?? [] as $break) {
-            if(!$break['start'] && !$break['end']) continue;
+            $correctionRequest = AttendanceCorrectionRequest::create([
+                'user_id'       => auth()->id(),
+                'attendance_id' => $attendance->id,
+                'status'        => 'pending',
+                ]);
 
-            $correction->breakCorrections()->create([
-                'start_time' => $break['start'],
-                'end_time' => $break['end'],
+            // 出勤・退勤
+            $correctionRequest->details()->create([
+                'target'     => 'attendance',
+                'start_time' => $request->start_time,
+                'end_time'   => $request->end_time,
+                'note'       => $request->remark,
             ]);
-        }
 
-        return redirect('/stamp_correction_request/list')
-            ->with('success', '修正申請を送信しました。');
+            // 休憩
+            foreach ($request->requested_breaks ?? [] as $break) {
+                if (empty($break['start']) && empty($break['end'])) {
+                    continue;
+                }
+                $correctionRequest->details()->create([
+                    'target'     => 'break',
+                    'start_time' => $break['start'],
+                    'end_time'   => $break['end'],
+                    'note'       => $request->remark,
+                ]);
+            }
+            return redirect('/stamp_correction_request/list')
+                ->with('success', '修正申請を送信しました。');
+        });
     }
 
 
@@ -80,15 +100,14 @@ class StampCorrectionRequestController extends Controller
     // 管理者：申請一覧
     public function adminList(Request $request)
     {
-        $status = $request->query('status');
-        $query = AttendanceCorrectionRequest::with(['attendance', 'user']);
+        $status = $request->query('status', 'pending');
 
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        $requests = $query
-            ->orderBy('status')
+        $requests = AttendanceCorrectionRequest::with([
+            'attendance',
+            'user',
+            'details'
+            ])
+            ->where('status', $status)
             ->orderByDesc('created_at')
             ->get();
 
@@ -101,32 +120,52 @@ class StampCorrectionRequestController extends Controller
         $correction = AttendanceCorrectionRequest::with([
             'attendance',
             'user',
-            'breakCorrections'
+            'details'
         ])->findOrFail($id);
 
-        return view('correction.approve', compact('correction'));
+        $attendanceDetail = $correction->details
+            ->where('target', 'attendance')
+            ->first();
+        
+        $breakDetails = $correction->details
+            ->where('target', 'break');
+
+        return view('correction.approve', compact(
+            'correction',
+            'attendanceDetail',
+            'breakDetails'
+            ));
     }
 
     // 管理者：申請承認
     public function approve($id)
     {
-        $correction = AttendanceCorrectionRequest::with(['attendance', 'breakCorrections'])
+        $correction = AttendanceCorrectionRequest::with(['attendance', 'details'])
             ->findOrFail($id);
+        if ($correction->status === 'approved') {
+            return back()->withErrors('すでに承認済みです');
+        }
 
         DB::transaction(function () use ($correction) {
             $attendance = $correction->attendance;
+            $details = $correction->details;
 
-            $attendance->update([
-                'start_time' => $correction->requested_start,
-                'end_time' => $correction->requested_end,
-                'remark' => $correction->remark,
-            ]);
+            // 出勤退勤
+            $main = $details->where('target', 'attendance')->first();
+            if ($main) {
+                $attendance->update([
+                    'start_time' => $main->start_time,
+                    'end_time'   => $main->end_time,
+                ]);
+            }
 
+            // 休憩
             $attendance->breakTimes()->delete();
-            foreach ($correction->breakCorrections as $break) {
+            $breaks = $details->where('target', 'break');
+            foreach ($breaks as $break) {
                 $attendance->breakTimes()->create([
                     'start_time' => $break->start_time,
-                    'end_time'=> $break->end_time,
+                    'end_time'   => $break->end_time,
                 ]);
             }
             $correction->update([

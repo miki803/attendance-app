@@ -31,7 +31,7 @@
                 @foreach($staffs as $staff)
                     <tr>
                         <td>{{ $staff->name }}</td> <!-- 名前 -->
-                        <td>{{ $staff?->email}}</td> <!-- メールアドレス -->
+                        <td>{{ $staff->email}}</td> <!-- メールアドレス -->
                         <td>
                             <a href="{{ route('admin.attendance.staff',$staff->id) }}">詳細</a>
                         </td>

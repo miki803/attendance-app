@@ -13,7 +13,7 @@ class BreakRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,16 @@ class BreakRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'breaks.*.start' => ['nullable', 'date_format:H:i'],
+            'breaks.*.end'   => ['nullable', 'date_format:H:i', 'after:breaks.*.start'],
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'breaks.*.start.date_format' => '休憩時間が不適切な値です',
+            'breaks.*.end.date_format'   => '休憩時間が不適切な値です',
+            'breaks.*.end.after'         => '休憩時間が不適切な値です',
         ];
     }
 }

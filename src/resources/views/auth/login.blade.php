@@ -31,6 +31,7 @@
     </div>
     <button class="btn btn--big">ログインする</button>
     <a href="/register" class="link">会員登録はこちら</a>
+    <a href="/admin/login" class="link">管理者ログインはこちら</a>
 </form>
 </div>
 @endsection

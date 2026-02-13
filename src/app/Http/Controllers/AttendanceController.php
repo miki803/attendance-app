@@ -152,25 +152,48 @@ class AttendanceController extends Controller
     // 勤怠詳細
     public function detail($id)
     {
-        // URLで指定した$idの勤怠の中から、ログイン中ユーザーのものだけを1件取得する
-        $attendance = Attendance::where('id', $id)
-        ->where('user_id', auth()->id())
-        ->first();
-        if (!$attendance){
-            abort(404);
+        $user = auth()->user();
+
+        $attendance = Attendance::with(['breakTimes'])
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $isPending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('status', 'pending')
+            ->exists();
+
+        return view('attendance.detail', [
+            'attendance' => $attendance,
+            'breakTimes' => $attendance->breakTimes,
+            'isPending' => $isPending,
+        ]);
+    }
+
+    public function detailByDate($date)
+    {
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereDate('date', $date)
+            ->with('breakTimes')
+            ->first();
+
+        // breakTimes（null対策）
+        $breakTimes = $attendance?->breakTimes ?? collect();
+
+        // 承認待ち判定（attendanceがある場合のみ）
+        $isPending = false;
+        if ($attendance) {
+            $isPending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+                ->where('status', 'pending')
+                ->exists();
         }
 
-        // この勤怠（$attendance）に紐づく休憩を、開始時間順で全部取る
-        $breakTimes = BreakTime::where('attendance_id', $attendance->id)
-        ->orderBy('start_time')
-        ->get();
-
-        $correction = AttendanceCorrectionRequest::where('attendance_id',$attendance->id)
-        ->latest()
-        ->first();
-        $isPending = $correction && $correction->status === 'pending';
-
-
-        return view('attendance.detail',compact('attendance','breakTimes','isPending'));
+        return view('attendance.detail', compact(
+            'attendance',
+            'date',
+            'breakTimes',
+            'isPending'
+        ));
     }
+
 }

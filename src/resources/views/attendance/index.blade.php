@@ -14,7 +14,7 @@
 <div class ="attendance">
     <div class="attendance__status">
         @if(!$attendance)
-            出勤外
+            勤務外
         @elseif($attendance->status === 'working' && $onBreak)
             休憩中
         @elseif($attendance->status === 'working')
@@ -36,24 +36,24 @@
     <div class="attendance__actions">
         <!-- 出勤前 -->
         @if(!$attendance)
-            <form method="POST" action="/attendance/start">
+            <form method="POST" action="{{ route('attendance.start') }}">
                 @csrf
                 <button class="btn btn--primary">出勤</button>
             </form>
         <!--出勤中-->
         @elseif($attendance->status === 'working' && !$onBreak)
-            <form method="POST" action="/attendance/end">
+            <form method="POST" action="{{ route('attendance.end') }}">
                 @csrf
                 <button class="btn btn--primary">退勤</button>
             </form>
-            <form method="POST" action="/attendance/break/start">
+            <form method="POST" action="{{ route('attendance.break.start') }}">
                 @csrf
                 <button class="btn">休憩入</button>
             </form>
 
         <!--休憩中-->
         @elseif($attendance->status === 'working' && $onBreak)
-            <form method="POST" action="/attendance/break/end">
+            <form method="POST" action="{{ route('attendance.break.end') }}">
                 @csrf
                 <button class="btn">休憩戻</button>
             </form>

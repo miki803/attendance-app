@@ -8,7 +8,8 @@
 
 .card {
     background: transparent;
-    width: 900px;
+    max-width: 900px;
+    width: 100%;
     padding: 30px;
     border-radius: 6px;
 }
@@ -29,7 +30,12 @@
     overflow: hidden;
 }
 
-
+.detail-table th {
+    width: 180px;
+    text-align: left;
+    padding: 14px;
+    font-weight: bold;
+}
 
 .detail-table td {
     padding: 14px;
@@ -52,8 +58,11 @@
 }
 
 
-input[type="time"],
+input[type="time"] {
+    width: 120px;
+}
 input[type="text"] {
+    width: 200px;
     padding: 6px 10px;
 }
 
@@ -69,7 +78,7 @@ input[type="text"] {
 .btn--black {
     background-color: #000;
     color: #fff;
-    padding: 8px 24px;
+    padding: 12px 32px;
     border: none;
 }
 

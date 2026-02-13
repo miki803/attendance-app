@@ -34,12 +34,12 @@
                 <tbody>
                 @foreach($users as $user)
                     @php
-                        $attendance = $user->attendances->first();$attendance = $user->attendances->first();
+                        $attendance = $user->attendances->first();
                     @endphp
                     <tr>
                         <td>{{ $user->name }}</td> <!-- 名前 -->
-                        <td>{{ $attendance->start_time ?? '-' }}</td> <!-- 出勤 -->
-                        <td>{{ $attendance->end_time ?? '-' }}</td> <!-- 退勤 -->
+                        <td>{{ $attendance?->start_time ?? '-' }}</td> <!-- 出勤 -->
+                        <td>{{ $attendance?->end_time ?? '-' }}</td> <!-- 退勤 -->
                         <td>{{ $attendance->break_time ?? '-' }}</td> <!-- 休憩 -->
                         <td>{{ $attendance->working_time ?? '-' }}</td> <!-- 合計 -->
                         <td>

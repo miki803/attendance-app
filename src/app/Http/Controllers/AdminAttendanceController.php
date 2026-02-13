@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\BreakTime;
 use App\Models\AttendanceCorrectionRequest;
 use Carbon\Carbon;
+use App\Http\Requests\AdminAttendanceRequest;
+use Illuminate\Support\Facades\DB;
 
 class AdminAttendanceController extends Controller
 {
@@ -60,7 +62,46 @@ class AdminAttendanceController extends Controller
     }
 
     // 管理者修正
-    public function update() { }
+    public function update(AdminAttendanceRequest $request) 
+    {
+
+        $userId = $request->user_id ?? auth()->id();
+
+        if ($request->attendance_id) {
+            $attendance = Attendance::findOrFail($request->attendance_id);
+        } else {
+            $attendance = Attendance::firstOrCreate(
+                [
+                    'user_id' => $userId,
+                    'date'    => $request->date,
+                ],
+                [
+                    'status' => 'normal',
+                ]
+        );;
+        }
+
+        DB::transaction(function () use ($request, $attendance){
+            // 出勤退勤更新
+            $attendance->update([
+                'start_time' => $request->start_time,
+                'end_time'   => $request->end_time,
+            ]);
+            // 休憩リセット
+            $attendance->breakTimes()->delete();
+            foreach ($request->breaks ?? [] as $break) {
+                if (empty($break['start']) && empty($break['end'])) continue;
+
+                $attendance->breakTimes()->create([
+                    'start_time' => $break['start'],
+                    'end_time'   => $break['end'],
+                ]);
+            }
+        });
+        return redirect()
+            ->route('admin.attendance.detail', $attendance->id)
+            ->with('success', '更新しました');
+    }
 
     // スタッフ別勤怠
     public function staff($id, Request $request) {
@@ -102,6 +143,36 @@ class AdminAttendanceController extends Controller
         ]);
 
     }
+
+    public function detailByDate(User $user, $date)
+    {
+        $attendance = Attendance::where('user_id', $user->id)
+            ->whereDate('date', $date)
+            ->with('breakTimes')
+            ->first();
+
+        $breakTimes = $attendance?->breakTimes ?? collect();
+
+        $correction = null;
+        $isPending = false;
+        if ($attendance) {
+            $correction = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+                ->latest()
+                ->first();
+
+            $isPending = $correction && $correction->status === 'pending';
+        }
+
+        return view('admin.attendance.detail', compact(
+            'attendance',
+            'breakTimes',
+            'correction',
+            'isPending',
+            'user',
+            'date'
+        ));
+    }
+
 
 }
 

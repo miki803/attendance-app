@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreStampCorrectionRequest extends FormRequest
 {
@@ -25,18 +25,22 @@ class StoreStampCorrectionRequest extends FormRequest
     public function rules()
     {
         return [
-            'attendance_id' => ['required', 'integer', 'exists:attendances,id'],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'attendance_id' => ['nullable', 'integer', 'exists:attendances,id'],
+            'date' => ['required', 'date'],
+            // 出勤・退勤
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time'   => ['nullable', 'date_format:H:i'],
             'remark' => ['required', 'string'],
-            'requested_breaks' => ['array'],
+            // 休憩
+            'requested_breaks' => ['nullable', 'array'],
             'requested_breaks.*.start' => ['nullable', 'date_format:H:i'],
-            'requested_breaks.*.end' => ['nullable', 'date_format:H:i'],
+            'requested_breaks.*.end'   => ['nullable', 'date_format:H:i'],
         ];
     }
     public function messages()
     {
         return [
+            'attendance_id.required' => '勤怠IDが正しく送信されていません',
             // 出勤・退勤
             'start_time.required' => '出勤時間もしくは退勤時間が不適切な値です',
             'end_time.required' => '出勤時間もしくは退勤時間が不適切な値です',
@@ -56,21 +60,50 @@ class StoreStampCorrectionRequest extends FormRequest
             $start = $this->start_time;
             $end   = $this->end_time;
 
+            // 出勤・退勤の前後チェック
+            if ($start && $end && $start >= $end) {
+                $validator->errors()->add(
+                    'start_time',
+                    '出勤時間もしくは退勤時間が不適切な値です'
+                );
+            }
+
             foreach ($this->requested_breaks ?? [] as $break) {
                 if (!$break['start'] || !$break['end']) continue;
-                if ($break['start'] < $start || $break['start'] > $end) {
-                    $validator->errors()->add(
-                        'requested_breaks',
-                        '休憩時間が不適切な値です'
-                    );
+                // 出勤退勤が両方あるときだけチェック
+                if ($start && $end) {
+                    if ($break['start'] < $start || $break['start'] > $end) {
+                        $validator->errors()->add(
+                            'requested_breaks',
+                            '休憩時間が不適切な値です'
+                        );
+                    }
+                    if ($break['end'] > $end){
+                        $validator->errors()->add(
+                            'requested_breaks',
+                            '休憩時間もしくは退勤時間が不適切な値です'
+                        );
+                    }
                 }
-                if ($break['end'] > $end){
-                    $validator->errors()->add(
-                        'requested_breaks',
-                        '休憩時間もしくは退勤時間が不適切な値です'
-                    );
-                }
+
             }
         });
     }
+
+    protected function prepareForValidation()
+    {
+        $breaks = $this->requested_breaks;
+
+        if ($breaks) {
+            foreach ($breaks as $i => $break) {
+                $breaks[$i]['start'] = $break['start'] ?: null;
+                $breaks[$i]['end']   = $break['end'] ?: null;
+            }
+        }
+
+        $this->merge([
+            'requested_breaks' => $breaks
+        ]);
+    }
+
 }

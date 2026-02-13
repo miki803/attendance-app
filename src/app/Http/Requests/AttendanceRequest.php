@@ -13,7 +13,7 @@ class AttendanceRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,16 @@ class AttendanceRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time'   => ['nullable', 'date_format:H:i'],
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'end_time.after' => '出勤時間もしくは退勤時間が不適切な値です',
+            'start_time.date_format' => '出勤時間もしくは退勤時間が不適切な値です',
+            'end_time.date_format' => '出勤時間もしくは退勤時間が不適切な値です',
         ];
     }
 }

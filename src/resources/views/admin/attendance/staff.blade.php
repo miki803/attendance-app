@@ -51,7 +51,9 @@
                             @if($attendance)
                                 <a href="{{ route('admin.attendance.detail', $attendance->id) }}">詳細</a>
                             @else
-                                -
+                                <a href="{{ route('admin.attendance.detail.date', ['user' => $staff->id,'date' => $date->format('Y-m-d') ]) }}">
+                                    詳細
+                                </a>
                             @endif
                         </td>
                     </tr>

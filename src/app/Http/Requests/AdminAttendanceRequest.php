@@ -13,7 +13,7 @@ class AdminAttendanceRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()?->is_admin;
     }
 
     /**
@@ -24,7 +24,19 @@ class AdminAttendanceRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time'   => ['required', 'date_format:H:i', 'after:start_time'],
+            'breaks.*.start' => ['nullable', 'date_format:H:i'],
+            'breaks.*.end'   => ['nullable', 'date_format:H:i', 'after:breaks.*.start'],
+            'remark' => ['required', 'string'],
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'end_time.after' => '出勤時間もしくは退勤時間が不適切な値です',
+            'breaks.*.end.after' => '休憩時間が不適切な値です',
+            'remark.required' => '備考を記入してください',
         ];
     }
 }

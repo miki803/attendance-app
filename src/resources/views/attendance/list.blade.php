@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','勤怠一覧画面（一般ユーザー')
+@section('title','勤怠一覧画面（一般ユーザー）')
 
 <!-- css読み込み -->
 @section('css')
@@ -45,16 +45,12 @@
                             {{ $date->format('m/d') }}
                             ({{ $date->isoFormat('dd') }})
                         </td> <!-- 日付 -->
-                        <td>{{ $attendance?->start_time_formatted ??'-' }} </td> <!-- 出勤 -->
-                        <td>{{ $attendance?->end_time_formatted ??'-' }}</td> <!-- 退勤 -->
-                        <td>{{ $attendance?->break_time ?? '-' }}</td> <!-- 休憩 -->
-                        <td>{{ $attendance?->working_time ?? '-' }}</td> <!-- 合計 -->
+                        <td>{{ $attendance?->start_time_formatted ??' ' }} </td> <!-- 出勤 -->
+                        <td>{{ $attendance?->end_time_formatted ??'' }}</td> <!-- 退勤 -->
+                        <td>{{ $attendance?->break_time ?? '' }}</td> <!-- 休憩 -->
+                        <td>{{ $attendance?->working_time ?? '' }}</td> <!-- 合計 -->
                         <td>
-                            @if($attendance)
-                                <a href="{{ route('attendance.detail',$attendance->id) }}">詳細</a>
-                            @else
-                                -
-                            @endif
+                                <a href="{{ route('attendance.detail.date',$date->format('Y-m-d')) }}">詳細</a>
                         </td>
                     </tr>
                 @endforeach

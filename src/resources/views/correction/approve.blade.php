@@ -20,7 +20,7 @@
             <tr>
                 <th>名前</th>
                 <td>
-                    {{ $correction->user->name }}
+                    {{ $correction->user?->name ?? '—' }}
                 </td>
             </tr>
 
@@ -35,19 +35,19 @@
             <tr>
                 <th>出勤・退勤</th>
                 <td>
-                    {{ $correction->requested_start }}
+                    {{ \Carbon\Carbon::parse($attendanceDetail?->start_time)->format('H:i') }}
                     ~
-                    {{ $correction->requested_end }}
+                    {{ \Carbon\Carbon::parse($attendanceDetail?->end_time)->format('H:i') }}
                 </td>
             </tr>
 
-            @foreach ($correction->breakCorrections as $i => $break)
+            @foreach ($breakDetails as $i => $break)
             <tr>
                 <th>休憩{{ $i + 1 }}</th>
                 <td>
-                    {{ $break->start_time }}
+                    {{ \Carbon\Carbon::parse($break->start_time)->format('H:i')  }}
                     ~
-                    {{ $break->end_time }}
+                    {{ \Carbon\Carbon::parse($break->end_time)->format('H:i')  }}
                 </td>
             </tr>
             @endforeach
@@ -55,7 +55,7 @@
             <tr>
                 <th>備考</th>
                 <td>
-                    {{ $correction->remark }}
+                    {{ $attendanceDetail?->note }}
                 </td>
             </tr>
         </table>
