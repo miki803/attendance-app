@@ -2,12 +2,10 @@
 
 @section('title','勤怠詳細画面（管理者）')
 
-<!-- css読み込み -->
 @section('css')
 <link rel="stylesheet" href="{{ asset('/css/attendance/detail.css')  }}">
 @endsection
 
-<!-- 本体 -->
 @section('content')
 
 @include('components.header_admin')

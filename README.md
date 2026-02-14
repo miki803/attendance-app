@@ -38,28 +38,28 @@ php artisan db:seed
 ```
 
 ## 使用技術(実行環境)
-- PHP8.3.0
-- Laravel8.83.27
-- MySQL8.0.26
+- PHP 8.2.30
+- Laravel 8.83.29
+- MySQL 8.0.26
 
 ## ER図
-![alt](ER.png)
+![alt](docs/ER.drawio.png)
 
 ## URL
 - 開発環境：http://localhost/login
-- 開発環境：http://localhostadmin/login
+- 開発環境：http://localhost/admin/login
 - phpMyAdmin:：http://localhost:8080/
 
 ## テストアカウント
 管理者
-name: 管理者ユーザ  
-email: admin@example.com  
-password: password  
+- name: 管理者ユーザ  
+- email: admin@example.com  
+- password: password  
 -------------------------
 一般ユーザー
-name: 山田 太郎
-email: 	taro.y@coachtech.com 
-password: password  
+- name: 山田 太郎
+- email: 	taro.y@coachtech.com 
+- password: password  
 -------------------------
 
 ## テスト

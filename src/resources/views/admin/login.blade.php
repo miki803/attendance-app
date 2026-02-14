@@ -1,14 +1,11 @@
-<!--ログイン画面（管理者）-->
 @extends('layouts.app')
 
 @section('title','管理者ログイン')
 
-<!-- css読み込み -->
 @section('css')
 <link rel="stylesheet" href="{{ asset('/css/authentication.css')  }}">
 @endsection
 
-<!-- 本体 -->
 @section('content')
 
 @include('components.header_admin')

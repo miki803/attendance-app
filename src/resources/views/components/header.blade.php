@@ -1,4 +1,3 @@
-
 <header class="header">
     <div class="header__logo">
         <a href="/login"><img src="{{ asset('img/COACHTECH.png') }}" alt="ロゴ"></a>

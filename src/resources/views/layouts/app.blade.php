@@ -1,4 +1,3 @@
-<!--すべての画面の土台になるファイル-->
 <!DOCTYPE html>
 <html lang="ja">
 <head>

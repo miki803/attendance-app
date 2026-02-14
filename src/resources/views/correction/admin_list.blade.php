@@ -2,12 +2,10 @@
 
 @section('title','申請一覧画面（管理者）')
 
-<!-- css読み込み -->
 @section('css')
 <link rel="stylesheet" href="{{ asset('/css/admin/correction.css')  }}">
 @endsection
 
-<!-- 本体 -->
 @section('content')
 
 @include('components.header_admin')
