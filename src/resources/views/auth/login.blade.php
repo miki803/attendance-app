@@ -12,6 +12,7 @@
 <div class="attendance">
 <form class="authenticate center" action="{{ route('login') }}" method="post" >
     @csrf
+    <input type="hidden" name="login_type" value="user">
     <h1 class="page__title">ログイン</h1>
     <label class="entry__name" for="mail" >メールアドレス</label>
     <input class="input" name="email" id="mail" type="email"  value="{{ old('email') }}">

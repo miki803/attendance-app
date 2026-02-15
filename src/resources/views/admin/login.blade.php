@@ -11,6 +11,7 @@
 @include('components.header_admin')
 <form class="authenticate center" action="{{ route('login') }}" method="post" >
     @csrf
+    <input type="hidden" name="login_type" value="admin">
     <h1 class="page__title">管理者ログイン</h1>
     <label class="entry__name" for="mail" >メールアドレス</label>
     <input class="input" name="email" id="mail" type="email"  value="{{ old('email') }}">

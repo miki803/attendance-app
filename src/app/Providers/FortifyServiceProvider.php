@@ -7,6 +7,8 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Requests\LoginRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -62,6 +64,19 @@ class FortifyServiceProvider extends ServiceProvider
     {
         
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('email', $request->email)->first();
+            if ($user && Hash::check($request->password, $user->password)) {
+                // 管理者ログイン
+                if ($request->login_type === 'admin') {
+                    return $user->is_admin ? $user : null;
+                }
+                // 一般ログイン
+                return !$user->is_admin ? $user : null;
+            }
+            return null;
+        });
 
         Fortify::registerView(function () {
             return view('auth.register');
