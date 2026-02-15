@@ -15,11 +15,8 @@ class CreateAttendanceCorrectionRequestsTable extends Migration
     {
         Schema::create('attendance_correction_requests', function (Blueprint $table) {
             $table->id();
-            // 外部キー（attendances.id）
             $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
-             // 外部キー（users.id）
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            // 承認待ち
             $table->string('status')->default('pending');
             $table->timestamps();
         });

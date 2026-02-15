@@ -6,6 +6,8 @@ use Illuminate\Database\Seeder;
 use App\Models\Attendance;
 use App\Models\User;
 use App\Models\BreakTime;
+use App\Models\AttendanceCorrectionRequest;
+use App\Models\AttendanceCorrectionDetail;
 use Carbon\Carbon;
 
 class AttendanceSeeder extends Seeder
@@ -17,8 +19,7 @@ class AttendanceSeeder extends Seeder
      */
     public function run()
     {
-        //ユーザーを1人取得（なければ作る）
-        //「勤怠データが1件もないと画面確認できないから、テスト用に attendance を1件 DB に入れる」
+        //ユーザーを1人取得
         $users = User::where('is_admin', false)->get();
         // 今月
         $start = Carbon::now()->startOfMonth();
@@ -59,11 +60,28 @@ class AttendanceSeeder extends Seeder
                     'end_time' => '18:00',
                     'status' => 'finished',
                 ]);
+                // 休憩（80%）
                 if (rand(1, 100) <= 80) {
                     BreakTime::create([
                         'attendance_id' => $attendance->id,
                         'start_time' => '12:00',
                         'end_time' => '13:00',
+                    ]);
+                }
+                // 修正申請
+                if (rand(1, 100) <= 20) {
+                    $status = rand(0, 1) ? 'pending' : 'approved';
+                    $request = AttendanceCorrectionRequest::create([
+                        'attendance_id' => $attendance->id,
+                        'user_id' => $user->id,
+                        'status' => $status,
+                    ]);
+                    AttendanceCorrectionDetail::create([
+                        'request_id' => $request->id,
+                        'start_time' => '10:00',
+                        'end_time' => '19:00',
+                        'note' => '打刻忘れのため修正',
+                        'target' => 'attendance',
                     ]);
                 }
                 $date->addDay();

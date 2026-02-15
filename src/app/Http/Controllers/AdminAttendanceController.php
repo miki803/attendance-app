@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\BreakTime;
 use App\Models\AttendanceCorrectionRequest;
 use Carbon\Carbon;
+use App\Models\AttendanceCorrectionDetail;
 use App\Http\Requests\AdminAttendanceRequest;
 use Illuminate\Support\Facades\DB;
 
@@ -36,35 +37,11 @@ class AdminAttendanceController extends Controller
         ]);
     }
 
-    // 勤怠詳細
-    public function detail($id) 
-    {
-        // ① 勤怠を取得（管理者なので user_id 制限なし）
-        $attendance = Attendance::with('user')
-        ->find($id);
-        if (!$attendance){
-            abort(404);
-        }
-
-        // ② 休憩取得
-        $breakTimes = BreakTime::where('attendance_id', $attendance->id)
-        ->orderBy('start_time')
-        ->get();
-
-        // ③ 修正申請状態
-        $correction = AttendanceCorrectionRequest::where('attendance_id',$attendance->id)
-        ->latest()
-        ->first();
-        $isPending = $correction && $correction->status === 'pending';
-
-
-        return view('admin.attendance.detail',compact('attendance','breakTimes','correction','isPending'));
-    }
 
     // 管理者修正
     public function update(AdminAttendanceRequest $request) 
     {
-
+        
         $userId = $request->user_id ?? auth()->id();
 
         if ($request->attendance_id) {
@@ -78,7 +55,7 @@ class AdminAttendanceController extends Controller
                 [
                     'status' => 'normal',
                 ]
-        );;
+        );
         }
 
         DB::transaction(function () use ($request, $attendance){
@@ -97,10 +74,16 @@ class AdminAttendanceController extends Controller
                     'end_time'   => $break['end'],
                 ]);
             }
+            AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+                ->where('status', 'pending')
+                ->update(['status' => 'approved']);
         });
         return redirect()
-            ->route('admin.attendance.detail', $attendance->id)
-            ->with('success', '更新しました');
+            ->route('admin.attendance.detail.date',[
+                'user' => $attendance->user_id,
+                'date' => Carbon::parse($attendance->date)->format('Y-m-d'),
+                ]);
+
     }
 
     // スタッフ別勤怠
@@ -151,16 +134,41 @@ class AdminAttendanceController extends Controller
             ->with('breakTimes')
             ->first();
 
+        if (!$attendance) {
+            $attendance = new Attendance([
+                'user_id' => $user->id,
+                'date' => $date,
+            ]);
+        }
+
         $breakTimes = $attendance?->breakTimes ?? collect();
 
         $correction = null;
         $isPending = false;
-        if ($attendance) {
+        if ($attendance->id) {
             $correction = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
                 ->latest()
                 ->first();
 
             $isPending = $correction && $correction->status === 'pending';
+        }
+        if ($isPending) {
+            $details = AttendanceCorrectionDetail::where('request_id', $correction->id)->get();
+            $breakTimes = collect();
+
+            foreach ($details as $detail) {
+                if ($detail->target === 'attendance') {
+                    $attendance->start_time = $detail->start_time;
+                    $attendance->end_time   = $detail->end_time;
+                    $attendance->remark     = $detail->note;
+                }
+                if ($detail->target === 'break') {
+                    $breakTimes->push((object)[
+                        'start_time' => $detail->start_time,
+                        'end_time'   => $detail->end_time,
+                    ]);
+                }
+            }
         }
 
         return view('admin.attendance.detail', compact(
@@ -171,6 +179,7 @@ class AdminAttendanceController extends Controller
             'user',
             'date'
         ));
+        
     }
 
 

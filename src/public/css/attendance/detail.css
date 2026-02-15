@@ -70,6 +70,13 @@ input[type="text"] {
     width: 100%;
 }
 
+.error-area {
+    color: red;
+    text-align: right;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
 .button-area {
     text-align: right;
     margin-top: 20px;
@@ -87,13 +94,13 @@ input[type="text"] {
 }
 
 .pending-message {
-    background-color: #fff3cd;
-    color: #856404;
+    color: red;
     padding: 12px 16px;
     border-radius: 6px;
     margin-bottom: 16px;
     font-size: 14px;
 }
+
 
 /* ==========================
    タブレット対応

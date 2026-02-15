@@ -15,13 +15,12 @@ class CreateAttendanceCorrectionDetailsTable extends Migration
     {
         Schema::create('attendance_correction_details', function (Blueprint $table) {
             $table->id();
-            // 外部キー
             $table->foreignId('request_id')->constrained('attendance_correction_requests')->cascadeOnDelete();
             $table->time('start_time');
             $table->time('end_time');
             $table->text('note');
             $table->timestamps();
-            $table->string('target'); // start_time /end_time / break_time
+            $table->string('target'); 
 
         });
     }
@@ -33,6 +32,8 @@ class CreateAttendanceCorrectionDetailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attendance_correction_details');
+        Schema::table('attendance_correction_requests', function (Blueprint $table) {
+            $table->text('remark')->nullable();
+        });
     }
 }

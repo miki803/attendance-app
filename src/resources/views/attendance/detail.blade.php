@@ -76,25 +76,27 @@
                     <td>
                         <input class="remark-input" type="text" name="remark" value="{{ old('remark', $attendance?->remark) }}" {{ $isPending ? 'readonly' : '' }}>
                     </td>
+                    
                 </tr>
             </table>
-            <div class="button-area">
-            @if ($errors->any())
-                <div style="color:red;">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            @endif
 
-            @if (! $isPending)
-                <button class="btn btn--black" type="submit">修正</button>
-            @endif
-            @if ($isPending)
-                <div class="pending-message">
-                    承認待ちのため修正はできません。
-                </div>
-            @endif
+            <div class="action-area">
+                @if ($errors->any())
+                    <div class="error-area">
+                        @foreach ($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+                <div class="button-area">
+                @if (! $isPending)
+                    <button class="btn btn--black" type="submit">修正</button>
+                @endif
+                @if ($isPending)
+                    <div class="pending-message">
+                        承認待ちのため修正はできません。
+                    </div>
+                @endif
 
             </div>
         </form>

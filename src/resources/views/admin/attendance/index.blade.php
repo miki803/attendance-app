@@ -37,17 +37,13 @@
                         $attendance = $user->attendances->first();
                     @endphp
                     <tr>
-                        <td>{{ $user->name }}</td> <!-- 名前 -->
-                        <td>{{ $attendance?->start_time ?? '-' }}</td> <!-- 出勤 -->
-                        <td>{{ $attendance?->end_time ?? '-' }}</td> <!-- 退勤 -->
-                        <td>{{ $attendance->break_time ?? '-' }}</td> <!-- 休憩 -->
-                        <td>{{ $attendance->working_time ?? '-' }}</td> <!-- 合計 -->
+                        <td>{{ $user->name }}</td> 
+                        <td>{{ $attendance?->start_time ?? '' }}</td> 
+                        <td>{{ $attendance?->end_time ?? '' }}</td> 
+                        <td>{{ $attendance->break_time ?? '' }}</td> 
+                        <td>{{ $attendance->working_time ?? '' }}</td> 
                         <td>
-                            @if ($attendance)
-                                <a href="{{ url('/admin/attendance/' . $attendance->id) }}">詳細</a>
-                            @else
-                                -
-                            @endif
+                            <a href="{{ route('admin.attendance.detail.date', ['user' => $user->id,'date' => $currentDate->format('Y-m-d')]) }}">詳細</a>
                         </td>
                     </tr>
                 @endforeach

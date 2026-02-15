@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\BreakTime;
+use App\Models\AttendanceCorrectionDetail;
 use App\Models\AttendanceCorrectionRequest;
 
 class AttendanceController extends Controller
@@ -133,13 +134,31 @@ class AttendanceController extends Controller
 
         // 勤怠を日付キーで取得
         $attendances = Attendance::where('user_id', auth()->id())
-        ->whereBetween('date',[$startOfMonth,$endOfMonth])
-        ->with('breakTimes')
-        ->orderBy('date')
-        ->get()
-        ->keyBy(function ($attendance) {
+            ->whereBetween('date',[$startOfMonth,$endOfMonth])
+            ->with('breakTimes')
+            ->orderBy('date')
+            ->get();
+
+        foreach ($attendances as $attendance) {
+            $pending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->first();
+
+            if ($pending) {
+                $details = AttendanceCorrectionDetail::where('request_id', $pending->id)->get();
+                foreach ($details as $detail) {
+                    if ($detail->target === 'attendance') {
+                        $attendance->start_time = $detail->start_time;
+                        $attendance->end_time   = $detail->end_time;
+                    }
+                }
+            }
+        }
+        $attendances = $attendances->keyBy(function ($attendance) {
             return $attendance->date->format('Y-m-d');
         });
+
 
         return view('attendance.list',[
             'dates' => $dates,
@@ -159,15 +178,44 @@ class AttendanceController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        $isPending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+        $pendingRequest = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
             ->where('status', 'pending')
-            ->exists();
+            ->latest()
+            ->first();
 
-        return view('attendance.detail', [
-            'attendance' => $attendance,
-            'breakTimes' => $attendance->breakTimes,
-            'isPending' => $isPending,
-        ]);
+        $isPending = false;
+        $breakTimes = $attendance->breakTimes;
+
+        if ($pendingRequest) {
+            $isPending = true;
+            $details = AttendanceCorrectionDetail::where('request_id', $pendingRequest->id)->get();
+            $breakTimes = collect();
+
+            foreach ($details as $detail){
+                // 出勤退勤
+                if ($detail->target === 'attendance') {
+                    $attendance->start_time = $detail->start_time;
+                    $attendance->end_time   = $detail->end_time;
+                    $attendance->remark     = $detail->note;
+                }
+                // 休憩
+                if ($detail->target === 'break') {
+                    $breakTimes->push((object)[
+                        'start_time' => $detail->start_time,
+                        'end_time'   => $detail->end_time,
+                    ]);
+                }
+            }
+            if ($breakTimes->isEmpty()) {
+                $breakTimes = $attendance->breakTimes;
+            }
+        }
+
+        return view('attendance.detail', compact(
+            'attendance',
+            'breakTimes',
+            'isPending'
+        ));
     }
 
     public function detailByDate($date)
@@ -177,15 +225,39 @@ class AttendanceController extends Controller
             ->with('breakTimes')
             ->first();
 
-        // breakTimes（null対策）
         $breakTimes = $attendance?->breakTimes ?? collect();
-
-        // 承認待ち判定（attendanceがある場合のみ）
         $isPending = false;
+
         if ($attendance) {
-            $isPending = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
+            $pendingRequest = AttendanceCorrectionRequest::where('attendance_id', $attendance->id)
                 ->where('status', 'pending')
-                ->exists();
+                ->latest()
+                ->first();
+
+            if ($pendingRequest) {
+                $isPending = true;
+                $details = AttendanceCorrectionDetail::where('request_id', $pendingRequest->id)->get();
+                $breakTimes = collect();
+
+                foreach ($details as $detail) {
+                    // 出勤退勤
+                    if ($detail->target === 'attendance') {
+                        $attendance->start_time = $detail->start_time;
+                        $attendance->end_time   = $detail->end_time;
+                        $attendance->remark     = $detail->note;
+                    }
+                    // 休憩
+                    if ($detail->target === 'break') {
+                        $breakTimes->push((object)[
+                            'start_time' => $detail->start_time,
+                            'end_time'   => $detail->end_time,
+                        ]);
+                    }
+                }
+                if ($breakTimes->isEmpty()) {
+                    $breakTimes = $attendance->breakTimes;
+                }
+            }
         }
 
         return view('attendance.detail', compact(
